@@ -1,34 +1,42 @@
-import { Fragment } from 'react';
-import Head from 'next/head';
-
-import FeaturedPosts from '../components/home-page/featured-posts';
-import Hero from '../components/home-page/hero';
-import { getFeaturedPosts } from '../lib/posts-util';
+import fs from 'fs/promises';
+import path from 'path';
+import Link from 'next/link'
 
 function HomePage(props) {
-  return (
-    <Fragment>
-      <Head>
-        <title>Max' Blog</title>
-        <meta
-          name='description'
-          content='I post about programming and web development.'
-        />
-      </Head>
-      <Hero />
-      <FeaturedPosts posts={props.posts} />
-    </Fragment>
-  );
-}
+    const {products} = props;
 
-export function getStaticProps() {
-  const featuredPosts = getFeaturedPosts();
+    return (
+      <ul>
+          {products.map(v => {
+              return <li key={v.id}><Link href={`/products/${v.id}`}>{v.title}</Link></li>
+          })}
+      </ul>
+    );
+  }
 
-  return {
-    props: {
-      posts: featuredPosts,
-    },
+  export async function getStaticProps() {
+      const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json')
+      const jsonData = await fs.readFile(filePath);
+      const data = JSON.parse(jsonData);
+
+      if(!data) {
+          return {
+              redirect: {
+                  destination: '/no-data'
+              }
+          }
+      }
+
+      if(data.products.length === 0) {
+          return { notFound: true}
+      }
+
+      return {
+          props: {
+            products: data.products
+          },
+          revalidate: 5
+      };
   };
-}
-
-export default HomePage;
+  
+  export default HomePage;
