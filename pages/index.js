@@ -1,5 +1,6 @@
 import EventList from "../components/events/event-list";
 import { getFeaturedEvents } from "../helpers/api-util";
+import NewsletterRegistration from '../components/input/newsletter-registration';
 
 function HomePage({ events }) {
   if (!events) {
@@ -8,6 +9,7 @@ function HomePage({ events }) {
 
   return (
     <div>
+      <NewsletterRegistration />
       <EventList items={events} />
     </div>
   );
